@@ -9,10 +9,9 @@ export default function Invoice() {
 
     useEffect(() => {
         // Fetch the CSV file
-        fetch("/home/odaio/dev/portnet/back/data/Generated_Invoices.csv")
+        fetch("http://127.0.0.1:5000/data")
             .then((response) => {
-                console.log(response);
-                return response.text()})
+                return response.json()})
             .then((csvText) => {
                 console.log(csvText)
                 Papa.parse(csvText, {
