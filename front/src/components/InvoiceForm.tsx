@@ -1,36 +1,24 @@
 import React, { useState } from "react";
+import axios from "axios";
+import Dialog from "./Dialog";
 
 type InvoiceFormProps = {
-    onClose: () => void;
+  onClose: () => void,
 }
 
-const InvoiceForm:React.FC<InvoiceFormProps> = ({onClose}) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    invoiceNumber: "",
-    invoiceDate: "",
-    sellerName: "",
-    sellerAddress: "",
-    sellerContact: "",
-    buyerName: "",
-    buyerAddress: "",
-    buyerContact: "",
     productName: "",
     hsCode: "",
-    quantity: "",
-    unitPrice: "",
     totalPrice: "",
-    incoterm: "",
-    paymentTerms: "",
-    modeOfTransport: "",
-    countryOfOrigin: "",
-    destinationCountry: "",
-    currency: "",
-    grossWeight: "",
-    netWeight: "",
+    description: "",
   });
 
+  const [analysis, setAnalysis] = useState<boolean>(false)
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value }: {name: any, value: any} = e.target;
+    const { name, value }: { name: any, value: any } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
@@ -38,131 +26,58 @@ const InvoiceForm:React.FC<InvoiceFormProps> = ({onClose}) => {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
     onClose();
-    // Add your form submission logic here
   };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('file', file);
+    try {
+      const res = await axios.post("http://127.0.0.1:5000/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const temp = JSON.parse(res.data.hs_code)
+      console.log(temp)
+      setFormData({
+        ...temp
+      })
+      setTimeout(() => {
+        setAnalysis(true);
+
+      },1000)
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">
-          Invoice Form
-        </h1>
+      {!analysis?
+      <div className="mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <div className="flex items-center justify-center min-h-[10vh]">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-bold text-blue-600">
+              Invoice Form
+            </h1>
+            <input
+              type="file"
+              className="block text-sm text-gray-500 
+                 file:mr-4 file:py-2 file:px-4
+                 file:rounded-lg file:border-0
+                 file:text-sm file:font-semibold
+                 file:bg-blue-50 file:text-blue-700
+                 hover:file:bg-blue-100"
+              onChange={handleFileUpload}
+            />
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Invoice Number and Date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Invoice Number
-              </label>
-              <input
-                type="text"
-                name="invoiceNumber"
-                value={formData.invoiceNumber}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Invoice Date
-              </label>
-              <input
-                type="date"
-                name="invoiceDate"
-                value={formData.invoiceDate}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Seller Details */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Seller Name
-              </label>
-              <input
-                type="text"
-                name="sellerName"
-                value={formData.sellerName}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Seller Address
-              </label>
-              <input
-                type="text"
-                name="sellerAddress"
-                value={formData.sellerAddress}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Seller Contact
-              </label>
-              <input
-                type="text"
-                name="sellerContact"
-                value={formData.sellerContact}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Buyer Details */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Buyer Name
-              </label>
-              <input
-                type="text"
-                name="buyerName"
-                value={formData.buyerName}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Buyer Address
-              </label>
-              <input
-                type="text"
-                name="buyerAddress"
-                value={formData.buyerAddress}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Buyer Contact
-              </label>
-              <input
-                type="text"
-                name="buyerContact"
-                value={formData.buyerContact}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
 
           {/* Product Details */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -194,25 +109,12 @@ const InvoiceForm:React.FC<InvoiceFormProps> = ({onClose}) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Quantity
+                Price
               </label>
               <input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Unit Price
-              </label>
-              <input
-                type="number"
-                name="unitPrice"
-                value={formData.unitPrice}
+                type="text"
+                name="totalPrice"
+                value={formData.totalPrice}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -223,132 +125,16 @@ const InvoiceForm:React.FC<InvoiceFormProps> = ({onClose}) => {
           {/* Total Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Total Price
+              description
             </label>
             <input
-              type="number"
-              name="totalPrice"
-              value={formData.totalPrice}
+              type="text"
+              name="description"
+              value={formData.description}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
             />
-          </div>
-
-          {/* Incoterm and Payment Terms */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Incoterm
-              </label>
-              <input
-                type="text"
-                name="incoterm"
-                value={formData.incoterm}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Payment Terms
-              </label>
-              <input
-                type="text"
-                name="paymentTerms"
-                value={formData.paymentTerms}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Mode of Transport and Country Details */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Mode of Transport
-              </label>
-              <input
-                type="text"
-                name="modeOfTransport"
-                value={formData.modeOfTransport}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Country of Origin
-              </label>
-              <input
-                type="text"
-                name="countryOfOrigin"
-                value={formData.countryOfOrigin}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Destination Country
-              </label>
-              <input
-                type="text"
-                name="destinationCountry"
-                value={formData.destinationCountry}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Currency and Weight Details */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Currency
-              </label>
-              <input
-                type="text"
-                name="currency"
-                value={formData.currency}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Gross Weight (kg)
-              </label>
-              <input
-                type="number"
-                name="grossWeight"
-                value={formData.grossWeight}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Net Weight (kg)
-              </label>
-              <input
-                type="number"
-                name="netWeight"
-                value={formData.netWeight}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
           </div>
 
           {/* Submit Button */}
@@ -361,7 +147,11 @@ const InvoiceForm:React.FC<InvoiceFormProps> = ({onClose}) => {
             </button>
           </div>
         </form>
-      </div>
+      </div>:
+      <Dialog isOpen={analysis} onClose={() => {
+        setAnalysis(false)
+      }} hs_code={Number(formData.hsCode)} description={formData.description} name={formData.productName} price={Number(formData.totalPrice) || 50000}/>
+      }
     </div>
   );
 };

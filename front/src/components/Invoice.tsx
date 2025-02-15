@@ -1,36 +1,14 @@
 import { useEffect, useState } from "react";
 import InvoiceForm from "./InvoiceForm"
-import Table from "./Table";
-import Papa from "papaparse";
 
 export default function Invoice() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [invoiceData, setInvoiceData] = useState([]);
-
-    useEffect(() => {
-        // Fetch the CSV file
-        fetch("http://127.0.0.1:5000/data")
-            .then((response) => {
-                return response.json()})
-            .then((csvText) => {
-                console.log(csvText)
-                Papa.parse(csvText, {
-                    header: true, // Use the first row as headers
-                    dynamicTyping: true, // Automatically convert numeric values
-                    complete: (result: any) => {
-                        setInvoiceData(result.data); // Set the parsed data
-                    },
-                });
-            });
-    }, []);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
     return (<>
-        <Table data={invoiceData} />
         <div className="p-8 bg-blue">
-            <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
             <button
                 onClick={openModal}
                 className="px-4 py-2 bg-red-50 text-gray-800 rounded-md hover:bg-blue-700"

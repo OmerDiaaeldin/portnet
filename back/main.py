@@ -1,4 +1,14 @@
-from cv_model import object_classifier
-image_url = 'https://images.rscentral.org/StoreImages/PageHeaders/electronicsPacking_01.jpg'
+from PyPDF2 import PdfReader
 
-image_classes = object_classifier(image_url)
+# Load the PDF file
+
+# Extract text from each page
+
+
+def pdf_to_text(path):
+    reader = PdfReader(path)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text()
+    
+    return text
